@@ -8,7 +8,9 @@ import '../../core/align/models.dart';
 import '../../core/align/session.dart';
 import '../../core/progress/progress_store.dart';
 import '../../core/quran/quran_repo.dart';
+import '../../core/sound/sfx.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/reward.dart';
 import '../common.dart';
 import 'teacher_controller.dart';
 
@@ -90,7 +92,7 @@ Future<TeacherController> createTeacher(AppServices s, int surah,
     {required int from, required int to, bool hidden = false, TeacherMode? mode}) async {
   final q = await s.repo.surah(surah);
   final fatiha = await s.repo.surah(1);
-  return TeacherController(SurahLayout(q, fatiha),
+  return TeacherController(SurahLayout(q, fatiha), s.models,
       fromAyah: from, toAyah: to, hidden: hidden, mode: mode ?? s.settings.teacherMode);
 }
 
@@ -152,12 +154,17 @@ class TeacherView extends StatefulWidget {
 class _TeacherViewState extends State<TeacherView> {
   TeacherPhase? _lastPhase;
   late final _services = AppScope.of(context);
+  int _correctWords = 0;
+  bool _goalDone = false;
+
+  bool _recitedGoalDone() => _services.progress.recitedToday >= _services.settings.dailyGoal;
 
   TeacherController get c => widget.controller;
 
   @override
   void initState() {
     super.initState();
+    _goalDone = _recitedGoalDone(); // before this attempt adds anything
     c.addListener(_onChange);
   }
 
@@ -180,8 +187,22 @@ class _TeacherViewState extends State<TeacherView> {
 
   void _onChange() {
     final phase = c.phase;
+    // A soft tone for each word read right (at most one every 300 ms).
+    final correct = phase == TeacherPhase.listening ? c.results.values.where((r) => r.status == WordStatus.correct).length : 0;
+    if (correct > _correctWords) _services.sfx.play(SfxKind.right);
+    _correctWords = correct;
     if (phase == _lastPhase) return;
     _lastPhase = phase;
+    if (phase == TeacherPhase.stopped) _services.sfx.play(SfxKind.wrong);
+    if (phase == TeacherPhase.finished) {
+      // The daily goal just got done: a chime and a small reward.
+      final done = _recitedGoalDone();
+      if (done && !_goalDone) {
+        _services.sfx.play(SfxKind.chime);
+        showReward(context);
+      }
+      _goalDone = done;
+    }
     // Keep the screen on while listening.
     phase == TeacherPhase.listening ? WakelockPlus.enable() : WakelockPlus.disable();
     if (phase == TeacherPhase.stopped) unawaited(playStopWord());
@@ -346,13 +367,15 @@ class _Word extends StatelessWidget {
     final color = visible ? _color(r, isStop) : Colors.transparent;
     final text = word.mark == null ? word.text : '${word.text} ${word.mark}';
     final tint = isStop ? RattilColors.mistake : (visible ? color : null);
+    final glow = visible && !isStop && r?.status == WordStatus.correct && !r!.hasMedium;
     return Semantics(
       label: visible ? r?.status.name : AppLocalizations.of(context).hiddenWord,
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: r == null || r.issues.isEmpty || !visible ? null : () => _showIssues(context, r),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
+          // The colour and the glow fade in; with "reduce motion" they just appear.
+          duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 250),
           constraints: const BoxConstraints(minHeight: 48),
           padding: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
@@ -361,6 +384,7 @@ class _Word extends StatelessWidget {
                 : tint?.withValues(alpha: isStop ? 0.16 : 0.09),
             border: isStop ? Border.all(color: RattilColors.mistake, width: 1.5) : null,
             borderRadius: BorderRadius.circular(10),
+            boxShadow: glow ? [BoxShadow(color: RattilColors.correct.withValues(alpha: 0.45), blurRadius: 10)] : null,
           ),
           child: Text(text, textDirection: TextDirection.rtl, style: style.copyWith(color: color)),
         ),
@@ -450,6 +474,20 @@ class _BottomPanel extends StatelessWidget {
     switch (c.phase) {
       case TeacherPhase.loading:
         message = t.teacherLoading;
+      case TeacherPhase.needsModel:
+        final p = c.modelProgress;
+        message = p != null
+            ? t.downloading((p * 100).round())
+            : c.error != null
+                ? t.downloadFailed
+                : t.modelNeeded;
+        actions.add(p != null
+            ? SizedBox(width: 240, child: LinearProgressIndicator(value: p))
+            : FilledButton.icon(
+                onPressed: c.downloadModel,
+                icon: const Icon(Icons.download),
+                label: Text(t.downloadSize((c.models.totalBytes / 1e6).toStringAsFixed(0))),
+              ));
       case TeacherPhase.error:
         message = t.errorStart(c.error ?? '');
       case TeacherPhase.ready:

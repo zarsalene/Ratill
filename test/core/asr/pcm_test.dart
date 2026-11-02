@@ -33,21 +33,62 @@ void main() {
       expect(m.isNoisy, isFalse);
     });
 
-    test('a loud background is noisy', () {
+    // Each frame is 1600 samples = 0.1 s at 16 kHz.
+    test('a loud background is noisy after several seconds in a row', () {
       final m = NoiseMeter();
-      for (var i = 0; i < 20; i++) {
-        m.add(tone(0.05), speech: false); // about -29 dBFS
+      for (var i = 0; i < 40; i++) {
+        m.add(tone(0.1), speech: false); // about -23 dBFS
       }
       expect(m.isNoisy, isTrue);
     });
 
-    test('speech too close to the background is noisy', () {
+    test('a loud background is not judged in the first seconds', () {
       final m = NoiseMeter();
       for (var i = 0; i < 20; i++) {
+        m.add(tone(0.1), speech: false);
+      }
+      expect(m.isNoisy, isFalse);
+    });
+
+    test('a short noise burst in a quiet room does not warn', () {
+      final m = NoiseMeter();
+      for (var i = 0; i < 30; i++) {
+        m.add(tone(0.001), speech: false);
+      }
+      for (var i = 0; i < 10; i++) {
+        m.add(tone(0.1), speech: false); // 1 s of noise (a cough, a door)
+      }
+      expect(m.isNoisy, isFalse);
+    });
+
+    test('a quiet room whose mic floor is raised by auto gain is not noisy', () {
+      final m = NoiseMeter();
+      for (var i = 0; i < 40; i++) {
+        m.add(tone(0.03), speech: false); // about -34 dBFS floor
+        m.add(tone(0.3), speech: true); // about -13 dBFS, 21 dB above the floor
+      }
+      expect(m.isNoisy, isFalse);
+    });
+
+    test('speech too close to the background is noisy after several seconds', () {
+      final m = NoiseMeter();
+      for (var i = 0; i < 40; i++) {
         m.add(tone(0.008), speech: false); // about -45 dBFS
-        m.add(tone(0.016), speech: true); // only 6 dB louder
+        m.add(tone(0.011), speech: true); // only 3 dB louder
       }
       expect(m.isNoisy, isTrue);
+    });
+
+    test('the warning clears when the room gets quiet again', () {
+      final m = NoiseMeter();
+      for (var i = 0; i < 40; i++) {
+        m.add(tone(0.1), speech: false);
+      }
+      expect(m.isNoisy, isTrue);
+      for (var i = 0; i < 60; i++) {
+        m.add(tone(0.001), speech: false);
+      }
+      expect(m.isNoisy, isFalse);
     });
 
     test('no silence heard yet means no verdict', () {

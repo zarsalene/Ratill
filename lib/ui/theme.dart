@@ -27,6 +27,18 @@ const uiFont = 'PlexArabic';
 const titleFont = 'Amiri';
 const quranFont = 'AmiriQuran';
 
+/// Screen changes fade forward. With the system setting "reduce motion" the new
+/// screen just appears.
+class _CalmTransitions extends PageTransitionsBuilder {
+  const _CalmTransitions();
+  static const _fade = FadeForwardsPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(PageRoute<T> route, BuildContext context, Animation<double> animation,
+          Animation<double> secondaryAnimation, Widget child) =>
+      MediaQuery.disableAnimationsOf(context) ? child : _fade.buildTransitions<T>(route, context, animation, secondaryAnimation, child);
+}
+
 ThemeData rattilTheme(Brightness b) {
   final dark = b == Brightness.dark;
   final scheme = ColorScheme(
@@ -59,6 +71,10 @@ ThemeData rattilTheme(Brightness b) {
   final radius = BorderRadius.circular(20);
   return base.copyWith(
     scaffoldBackgroundColor: scheme.surface,
+    pageTransitionsTheme: const PageTransitionsTheme(builders: {
+      TargetPlatform.android: _CalmTransitions(),
+      TargetPlatform.iOS: _CalmTransitions(),
+    }),
     textTheme: text.copyWith(
       headlineMedium: text.headlineMedium?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.3),
       headlineSmall: text.headlineSmall?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.2),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +26,11 @@ class AyahTiming {
   /// Start of the ayah, including a first word that starts a little early.
   int get start => segs.isEmpty || segs.first.from > from ? from : segs.first.from;
 
+  /// Where playback of the ayah stops: its end, or the end of its last word
+  /// when the word timings run past it. Stopping at [to] alone cuts the last
+  /// word in those ayahs.
+  int get end => segs.isEmpty ? to : math.max(to, segs.map((s) => s.to).reduce(math.max));
+
   /// Word being recited at [ms], or null between words.
   int? wordAt(int ms) {
     for (final s in segs) {
@@ -43,7 +49,7 @@ class AyahTiming {
       if (s.word > word && after == null) after = s;
     }
     if (exact != null) return (exact.from, exact.to);
-    return (before?.from ?? start, after?.to ?? to);
+    return (before?.from ?? start, after?.to ?? end);
   }
 }
 
@@ -60,11 +66,6 @@ class SurahAudio {
 /// Where the audio of a surah is.
 sealed class AudioLocation {
   const AudioLocation();
-}
-
-class BundledAudio extends AudioLocation {
-  const BundledAudio(this.asset);
-  final String asset;
 }
 
 class DownloadedAudio extends AudioLocation {
@@ -89,18 +90,17 @@ class Reciter {
     this.timingsAsset,
     this.server,
     this.timingRead,
-    this.bundled = false,
     this.surahs,
   });
 
-  /// Storage key: 'husary_muallim', 'alafasy', or 'mp3q_<moshaf id>'.
+  /// Storage key: 'husary_muallim', 'alafasy', or `mp3q_<moshaf id>`.
   final String id;
 
   /// Display name (empty for built-ins: the UI names them).
   final String name;
   final Riwaya riwaya;
 
-  /// assets/quran/audio_<id>.json: surah URLs, sizes, word timings.
+  /// `assets/quran/audio_<id>.json`: surah URLs, sizes, word timings.
   final String? timingsAsset;
 
   /// mp3quran.net folder, ending with '/'. Surah n is 'nnn.mp3' in it.
@@ -109,9 +109,6 @@ class Reciter {
   /// mp3quran.net ayat_timing read id, when the site has timings.
   final int? timingRead;
 
-  /// Al-Fatiha and Juz 30 are in the APK (tool/fetch_audio.py).
-  final bool bundled;
-
   /// Surahs the recording has (null: all 114).
   final Set<int>? surahs;
 
@@ -119,13 +116,12 @@ class Reciter {
   bool has(int surah) => surahs?.contains(surah) ?? true;
 
   /// Al-Husary, the teaching recording: slow and exact, with a pause after
-  /// each ayah to repeat. Al-Fatiha and Juz 30 ship in the APK.
+  /// each ayah to repeat. Downloads per surah.
   static const husaryMuallim = Reciter(
     id: 'husary_muallim',
     name: '',
     riwaya: Riwaya.hafs,
     timingsAsset: 'assets/quran/audio_husary_muallim.json',
-    bundled: true,
   );
 
   /// Mishary Alafasy, murattal, with word timings. Downloads per surah.
@@ -143,17 +139,41 @@ class Reciter {
         'surahs': surahs?.toList(),
       };
 
+  /// Hosts the audio may come from.
+  static const _hosts = ['mp3quran.net'];
+
+  /// The audio folder the web API gave, made safe: https only (http is
+  /// upgraded), a known host (mp3quran.net or a subdomain), no user info.
+  /// Anything else gives null and the reciter is not used.
+  static String? safeServer(String? server) {
+    final u = server == null ? null : Uri.tryParse(server.trim());
+    if (u == null || (u.scheme != 'http' && u.scheme != 'https') || u.userInfo.isNotEmpty) return null;
+    final host = u.host.toLowerCase();
+    if (!_hosts.any((d) => host == d || host.endsWith('.$d'))) return null;
+    return Uri(scheme: 'https', host: host, path: u.path.endsWith('/') ? u.path : '${u.path}/').toString();
+  }
+
+  /// The id of an mp3quran.net recording. It names a folder on the phone, so
+  /// it must be an integer: anything else throws (and the row is skipped).
+  static String apiId(Object? id) => 'mp3q_${id as int}';
+
+  /// The id names a folder on the phone: letters, digits and underscore only.
+  static String _checkedId(String id) {
+    if (!RegExp(r'^[A-Za-z0-9_]+$').hasMatch(id)) throw FormatException('bad reciter id', id);
+    return id;
+  }
+
   factory Reciter.fromJson(Map<String, dynamic> j) => Reciter(
-        id: j['id'] as String,
+        id: _checkedId(j['id'] as String),
         name: j['name'] as String,
         riwaya: Riwaya.values.byName(j['riwaya'] as String),
-        server: j['server'] as String?,
+        server: safeServer(j['server'] as String?),
         timingRead: j['read'] as int?,
         surahs: (j['surahs'] as List?)?.map((e) => e as int).toSet(),
       );
 }
 
-/// One reciter's recording: bundled surahs, downloads, and timings.
+/// One reciter's recording: downloads and timings.
 class AudioCatalog extends ChangeNotifier {
   AudioCatalog(
     this.reciter, {
@@ -162,9 +182,6 @@ class AudioCatalog extends ChangeNotifier {
     Future<Directory> Function()? storageDir,
   })  : _bundle = bundle ?? rootBundle,
         _storageDir = storageDir ?? getApplicationSupportDirectory;
-
-  /// Surahs shipped in the APK for a bundled reciter: Al-Fatiha and Juz 30.
-  static final bundledSurahs = {1, for (var s = 78; s <= 114; s++) s};
 
   final Reciter reciter;
 
@@ -237,21 +254,24 @@ class AudioCatalog extends ChangeNotifier {
   /// Word timings exist (built-in reciters only).
   bool get hasWordTimings => reciter.builtIn;
 
-  String _url(int s) => _builtIn?[s]?.url ?? '${reciter.server}${s.toString().padLeft(3, '0')}.mp3';
+  String _url(int s) {
+    final built = _builtIn?[s]?.url;
+    if (built != null) return built;
+    final server = reciter.server;
+    if (server == null) throw const HttpException('no safe audio server for this reciter');
+    return '$server${s.toString().padLeft(3, '0')}.mp3';
+  }
 
   File _file(int s) => File('${_dir!.path}/s${s.toString().padLeft(3, '0')}.mp3');
 
   AudioLocation location(int s) {
-    if (reciter.bundled && bundledSurahs.contains(s)) {
-      return BundledAudio('assets/audio/${reciter.id}/s${s.toString().padLeft(3, '0')}.mp3');
-    }
     if (_downloaded.contains(s)) return DownloadedAudio(_file(s).path);
     return const MissingAudio();
   }
 
   bool isAvailable(int s) => location(s) is! MissingAudio;
 
-  /// Surahs on the phone (bundled or downloaded).
+  /// Surahs on the phone.
   int get availableCount => [for (var s = 1; s <= 114; s++) if (isAvailable(s)) s].length;
 
   /// Surahs this recording has that are not on the phone yet.

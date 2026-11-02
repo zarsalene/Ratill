@@ -271,17 +271,18 @@ class AudioDownloadTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final audio = AppScope.of(context).audio;
+    if (audio == null) return const SizedBox.shrink();
     return ListenableBuilder(
       listenable: audio,
       builder: (context, _) {
         final p = audio.downloading[surah];
         final failed = audio.downloadErrors.containsKey(surah);
-        final mb = (audio.surah(surah).bytes / 1e6).toStringAsFixed(0);
+        final bytes = audio.surah(surah)?.bytes;
         return ListTile(
           leading: p == null ? const Icon(Icons.download) : const SizedBox.square(dimension: 24, child: CircularProgressIndicator()),
           title: Text(p == null ? t.audioMissing : t.downloading((p * 100).round())),
           subtitle: failed && p == null ? Text(t.downloadFailed, style: TextStyle(color: Theme.of(context).colorScheme.error)) : null,
-          trailing: p == null ? FilledButton.tonal(onPressed: () => audio.download(surah), child: Text(t.downloadSize(mb))) : null,
+          trailing: p == null ? FilledButton.tonal(onPressed: () => audio.download(surah), child: bytes == null ? const Icon(Icons.download) : Text(t.downloadSize((bytes / 1e6).toStringAsFixed(0)))) : null,
         );
       },
     );

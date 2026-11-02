@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 import 'asr_worker.dart';
+import 'model_store.dart';
 
 /// Mic + on-device ASR. Audio never leaves the phone.
 class AsrEngine {
@@ -17,17 +17,18 @@ class AsrEngine {
 
   Stream<AsrUpdate> get updates => _worker.updates;
 
+  // Small files that ship in the APK. The big model comes from [ModelStore].
   static const _assets = {
-    'model': 'assets/models/asr.int8.onnx',
     'tokens': 'assets/models/tokens.txt',
     'vad': 'assets/models/silero_vad.onnx',
   };
 
-  /// Copies the bundled models to app storage once, then starts the worker.
-  static Future<AsrEngine> start() async {
-    final dir = Directory('${(await getApplicationSupportDirectory()).path}/models');
+  /// Copies the bundled files to app storage once, then starts the worker
+  /// with the downloaded model. Call only when [models] is ready.
+  static Future<AsrEngine> start(ModelStore models) async {
+    final dir = models.dir;
     await dir.create(recursive: true);
-    final paths = <String, String>{};
+    final paths = <String, String>{'model': models.path('asr.int8.onnx')};
     for (final MapEntry(:key, :value) in _assets.entries) {
       final file = File('${dir.path}/${value.split('/').last}');
       final data = await rootBundle.load(value);

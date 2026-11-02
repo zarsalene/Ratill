@@ -42,6 +42,9 @@ class ProgressStore extends ChangeNotifier {
   /// 's:a' → memorization card.
   final Map<String, MemoCard> cards = {};
   final Set<String> bookmarks = {};
+
+  /// 's:a' → the reader's note on that ayah (private, on the phone only).
+  final Map<String, String> notes = {};
   final Set<Award> badges = {};
   LastActivity? last;
   int bestStreak = 0;
@@ -58,6 +61,10 @@ class ProgressStore extends ChangeNotifier {
       for (final e in ((j['cards'] as Map?) ?? {}).entries) e.key as String: MemoCard.fromJson(e.value as Map<String, dynamic>),
     });
     bookmarks.addAll(List<String>.from((j['bm'] as List?) ?? const []));
+    notes.addAll({
+      for (final e in ((j['notes'] as Map?) ?? {}).entries)
+        if (e.key is String && e.value is String) e.key as String: e.value as String, // skip a bad entry, keep the rest
+    });
     badges.addAll([for (final b in (j['badges'] as List?) ?? const []) ...Award.values.where((x) => x.name == b)]);
     final l = j['last'];
     if (l != null) last = LastActivity.fromJson(l as Map<String, dynamic>);
@@ -72,6 +79,7 @@ class ProgressStore extends ChangeNotifier {
         'days': activeDays.toList()..sort(),
         'cards': {for (final e in cards.entries) e.key: e.value.toJson()},
         'bm': bookmarks.toList(),
+        'notes': notes,
         'badges': [for (final b in badges) b.name],
         'last': last?.toJson(),
         'best': bestStreak,
@@ -182,6 +190,21 @@ class ProgressStore extends ChangeNotifier {
     notifyListeners();
     _save();
   }
+
+  String? noteFor(int s, int a) => notes[refKey(s, a)];
+
+  /// Saves the note of an ayah. A blank note removes it.
+  void setNote(int s, int a, String text) {
+    final t = text.trim();
+    t.isEmpty ? notes.remove(refKey(s, a)) : notes[refKey(s, a)] = t;
+    notifyListeners();
+    _save();
+  }
+
+  /// Every ayah with a bookmark or a note, once, in Quran order.
+  List<AyahRef> savedList() => [
+        for (final k in {...bookmarks, ...notes.keys}) (surah: int.parse(k.split(':')[0]), ayah: int.parse(k.split(':')[1])),
+      ]..sort(compareRef);
 
   List<AyahRef> bookmarkList() => [
         for (final k in bookmarks) (surah: int.parse(k.split(':')[0]), ayah: int.parse(k.split(':')[1])),

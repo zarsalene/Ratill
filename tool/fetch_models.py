@@ -1,7 +1,12 @@
 """Download the on-device models into assets/models/ and verify their SHA-256.
 
-The models are not in Git (72 MB). CI and local builds run this first:
-    python tool/fetch_models.py
+The models are not in Git (72 MB). Local builds run this first:
+    python tool/fetch_models.py --bundled   # the small files the APK contains
+    python tool/fetch_models.py             # also the 72 MB speech model (dev, tests)
+
+The 72 MB speech model is not in the APK: the app downloads it after install
+and checks the same SHA-256 (lib/core/asr/model_store.dart; a test keeps the
+two pins equal).
 
 Every file is pinned to an exact source revision and checksum. A changed file
 fails the build instead of shipping silently.
@@ -37,9 +42,15 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
+# In the APK. The speech model downloads in the app instead.
+BUNDLED = {"tokens.txt", "ASR_LICENSE.txt", "silero_vad.onnx"}
+
+
 def main() -> int:
     DEST.mkdir(parents=True, exist_ok=True)
     for name, url, expected in FILES:
+        if "--bundled" in sys.argv and name not in BUNDLED:
+            continue
         path = DEST / name
         if path.exists() and sha256(path) == expected:
             print(f"ok      {name}")

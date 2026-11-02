@@ -23,8 +23,17 @@ class ReciterDirectory extends ChangeNotifier {
   /// Built-ins first, then the reciters the user added.
   List<Reciter> get known => [
         ...Reciter.builtIns,
-        for (final j in jsonDecode(_prefs.getString(_key) ?? '[]') as List) Reciter.fromJson(j as Map<String, dynamic>),
+        for (final j in jsonDecode(_prefs.getString(_key) ?? '[]') as List) ?_tryParse(j),
       ];
+
+  /// A saved reciter that is not valid (for example a bad id) is left out.
+  static Reciter? _tryParse(Object? j) {
+    try {
+      return Reciter.fromJson(j as Map<String, dynamic>);
+    } catch (_) {
+      return null;
+    }
+  }
 
   List<Reciter> knownFor(Riwaya r) => [for (final x in known) if (x.riwaya == r) x];
 
@@ -84,15 +93,20 @@ class ReciterDirectory extends ChangeNotifier {
       for (final rec in reciters) {
         for (final m in (rec as Map)['moshaf'] as List) {
           if (((m as Map)['rewaya_id'] as int?) != r.mp3quranId) continue;
-          final server = m['server'] as String;
-          out.add(Reciter(
-            id: 'mp3q_${m['id']}',
-            name: '${rec['name']} · ${m['name']}',
-            riwaya: r,
-            server: server.endsWith('/') ? server : '$server/',
-            timingRead: reads[_folder(server)],
-            surahs: {for (final s in (m['surah_list'] as String).split(',')) if (s.trim().isNotEmpty) int.parse(s)},
-          ));
+          try {
+            final server = Reciter.safeServer(m['server'] as String?);
+            if (server == null) continue; // not https, or not a known host
+            out.add(Reciter(
+              id: Reciter.apiId(m['id']),
+              name: '${rec['name']} · ${m['name']}',
+              riwaya: r,
+              server: server,
+              timingRead: reads[_folder(server)],
+              surahs: {for (final s in (m['surah_list'] as String).split(',')) if (s.trim().isNotEmpty) int.parse(s)},
+            ));
+          } catch (_) {
+            // A bad row (for example an id that is not a number): skip it.
+          }
         }
       }
       // Recordings with ayah timings (the reader follows along) first.

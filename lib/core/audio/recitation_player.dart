@@ -84,7 +84,6 @@ class RecitationPlayer extends ChangeNotifier {
     final cat = from ?? _catalog;
     if (_loadedSurah == s && _loadedCatalog == cat && !_clipped) return;
     final source = switch (cat.location(s)) {
-      BundledAudio(:final asset) => ProgressiveAudioSource(Uri.parse('asset:///$asset'), options: _sourceOptions),
       DownloadedAudio(:final path) => ProgressiveAudioSource(Uri.file(path), options: _sourceOptions),
       MissingAudio() => throw AudioNotAvailable(s),
     };
@@ -226,7 +225,7 @@ class RecitationPlayer extends ChangeNotifier {
     final surahTiming = _catalog.surah(s);
     if (surahTiming == null) return;
     final timing = surahTiming.ayah(a);
-    if (ms < timing.to) {
+    if (ms < timing.end) {
       final w = timing.wordAt(ms);
       if (w != word) {
         word = w;
@@ -242,8 +241,9 @@ class RecitationPlayer extends ChangeNotifier {
       _played = 0;
       ayah = a + 1;
       final next = surahTiming.ayah(a + 1);
-      // The next ayah usually starts where this one ends. Seek only if not.
-      if ((next.start - ms).abs() > 300) _seekTo(next.start);
+      // The next ayah usually starts where this one ends. Skip ahead if it
+      // starts later; never jump back (the timings of a few ayahs overlap).
+      if (next.start - ms > 300) _seekTo(next.start);
     } else if (loopRange) {
       _played = 0;
       ayah = _from;

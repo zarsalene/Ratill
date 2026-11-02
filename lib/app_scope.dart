@@ -4,12 +4,17 @@ import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/asr/model_store.dart';
 import 'core/audio/audio_catalog.dart';
 import 'core/audio/recitation_player.dart';
 import 'core/audio/reciters.dart';
+import 'core/notify/notification_service.dart';
+import 'core/prayer/tasbih_store.dart';
 import 'core/progress/progress_store.dart';
 import 'core/quran/quran_repo.dart';
 import 'core/quran/riwaya.dart';
+import 'core/quran/translation.dart';
+import 'core/sound/sfx.dart';
 import 'core/settings.dart';
 
 /// The app's long-lived objects.
@@ -20,8 +25,13 @@ class AppServices {
     required this.player,
     required this.progress,
     required this.settings,
-    required Map<String, AudioCatalog> catalogs,
-  }) : _catalogs = catalogs {
+    required this.models,
+    required this.tasbih,
+    required this.translations,
+    required this.sfx,
+    required this.notifications,
+    required this._catalogs,
+  }) {
     settings.addListener(_syncPlayer);
     reciters.addListener(_syncPlayer);
   }
@@ -31,6 +41,19 @@ class AppServices {
   final RecitationPlayer player;
   final ProgressStore progress;
   final Settings settings;
+
+  /// The speech model of the teacher (downloaded after install).
+  final ModelStore models;
+
+  /// Daily tasbih counts, and the Adhan and reminders (both on the phone only).
+  final TasbihStore tasbih;
+
+  /// The translation under each ayah.
+  final TranslationStore translations;
+
+  /// Sound effects (one switch in settings mutes them all).
+  final Sfx sfx;
+  final NotificationService notifications;
 
   /// Loaded catalogs by reciter id.
   final Map<String, AudioCatalog> _catalogs;
@@ -116,6 +139,11 @@ class AppServices {
       player: RecitationPlayer(catalogs[Reciter.husaryMuallim.id]!),
       progress: ProgressStore(prefs),
       settings: settings,
+      models: ModelStore(Directory('${(await dir()).path}/models')),
+      tasbih: TasbihStore(prefs),
+      translations: TranslationStore(settings),
+      sfx: Sfx(enabled: () => settings.soundEffects),
+      notifications: NotificationService(),
       catalogs: catalogs,
     );
     services._syncPlayer();

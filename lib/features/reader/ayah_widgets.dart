@@ -62,7 +62,7 @@ Future<void> showAyahActions(BuildContext context, int surah, int ayah, {require
   final s = AppScope.of(context);
   final t = AppLocalizations.of(context);
   final marked = s.progress.isBookmarked(surah, ayah);
-  final hasAudio = s.audio.isAvailable(surah);
+  final hasAudio = s.audio?.isAvailable(surah) ?? false;
   return showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
@@ -112,11 +112,55 @@ Future<void> showAyahActions(BuildContext context, int surah, int ayah, {require
               title: Text(marked ? t.bookmarkRemove : t.bookmarkAdd),
               onTap: () => act(() => s.progress.toggleBookmark(surah, ayah)),
             ),
+            ListTile(
+              leading: const Icon(Icons.edit_note),
+              title: Text(s.progress.noteFor(surah, ayah) == null ? t.noteAdd : t.noteEdit),
+              onTap: () => act(() => showNoteDialog(context, surah, ayah)),
+            ),
           ],
         ),
       );
     },
   );
+}
+
+/// Asks for the note of one ayah. The note stays on the phone. Empty text
+/// removes it.
+Future<void> showNoteDialog(BuildContext context, int surah, int ayah) {
+  final s = AppScope.of(context);
+  final t = AppLocalizations.of(context);
+  final controller = TextEditingController(text: s.progress.noteFor(surah, ayah));
+  return showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text('${s.surahs[surah - 1].name} · ${t.ayahN(ayah)}'),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        maxLines: 5,
+        maxLength: 1000,
+        decoration: InputDecoration(hintText: t.noteHint),
+      ),
+      actions: [
+        if (s.progress.noteFor(surah, ayah) != null)
+          TextButton(
+            onPressed: () {
+              s.progress.setNote(surah, ayah, '');
+              Navigator.pop(ctx);
+            },
+            child: Text(t.noteDelete),
+          ),
+        TextButton(onPressed: () => Navigator.pop(ctx), child: Text(t.cancel)),
+        FilledButton(
+          onPressed: () {
+            s.progress.setNote(surah, ayah, controller.text);
+            Navigator.pop(ctx);
+          },
+          child: Text(t.noteSave),
+        ),
+      ],
+    ),
+  ).whenComplete(controller.dispose);
 }
 
 /// Play controls: play/pause, repeat count, loop, speed. Shows a download
@@ -151,9 +195,10 @@ class AudioBar extends StatelessWidget {
           ),
           clipBehavior: Clip.antiAlias,
           child: ListenableBuilder(
-            listenable: Listenable.merge([s.player, s.audio]),
+            listenable: Listenable.merge([s.player, ?s.audio]),
             builder: (context, _) {
-              if (!s.audio.isAvailable(surah)) return AudioDownloadTile(surah: surah);
+              final audio = s.audio;
+              if (audio == null || !audio.isAvailable(surah)) return AudioDownloadTile(surah: surah);
               final p = s.player;
               final mine = p.surah == surah && p.isRangeActive;
               final playing = mine && p.playing;
@@ -216,7 +261,7 @@ class AudioBar extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            mine && p.ayah != null ? t.ayahN(p.ayah!) : reciterLabel(t, s.audio.reciter),
+                            mine && p.ayah != null ? t.ayahN(p.ayah!) : reciterLabel(t, audio.reciter),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.titleSmall,
@@ -286,9 +331,10 @@ Future<void> hearWord(BuildContext context, int surah, int ayah, int word) async
   }
 }
 
-String reciterLabel(AppLocalizations t, Reciter r) => switch (r) {
-  Reciter.husaryMuallim => t.reciterHusaryShort,
-  Reciter.alafasy => t.reciterName,
+String reciterLabel(AppLocalizations t, Reciter r) => switch (r.id) {
+  'husary_muallim' => t.reciterHusaryShort,
+  'alafasy' => t.reciterName,
+  _ => r.name,
 };
 
 /// One ayah, centered: tap a word to hear it; the word being heard lights up.

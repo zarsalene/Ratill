@@ -99,3 +99,22 @@ test('static hosting includes responsive styles, visible keyboard focus, and loc
   }
   assert.doesNotMatch(read('index.html'), /fonts\.googleapis\.com|fonts\.gstatic\.com/);
 });
+
+test('dev server: a bad URL answers 400 and the server keeps running (S8)', async () => {
+  const { spawn } = require('node:child_process');
+  const http = require('node:http');
+  const port = 4300 + Math.floor(Math.random() * 500);
+  const child = spawn(process.execPath, [path.join(root, 'server.js')], { env: { ...process.env, PORT: String(port) }, stdio: 'ignore' });
+  const get = p => new Promise((resolve, reject) => {
+    // A raw request line, so the client does not clean up the bad percent sequence.
+    const req = http.request({ host: '127.0.0.1', port, path: p, method: 'GET' }, res => { res.resume(); resolve(res.statusCode); });
+    req.on('error', reject);
+    req.end();
+  });
+  try {
+    let status;
+    for (let i = 0; i < 40; i++) { try { status = await get('/%'); break; } catch { await new Promise(r => setTimeout(r, 100)); } }
+    assert.equal(status, 400);
+    assert.equal(await get('/'), 200, 'still serving after the bad request');
+  } finally { child.kill(); }
+});

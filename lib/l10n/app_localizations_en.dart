@@ -45,6 +45,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get teacherLoading => 'Preparing the teacher…';
 
   @override
+  String get modelNeeded =>
+      'The teacher needs a one-time download. Wi-Fi is best.';
+
+  @override
   String get tapToStart => 'Tap the microphone and recite';
 
   @override
@@ -285,10 +289,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tabJuz => 'Juz';
 
   @override
-  String get bookmarks => 'Bookmarks';
+  String get bookmarks => 'Saved';
 
   @override
-  String get noBookmarks => 'No bookmarks yet. Tap an ayah to add one.';
+  String get noBookmarks =>
+      'Nothing saved yet. Tap an ayah to add a bookmark or a note.';
 
   @override
   String get pageView => 'Page view';
@@ -548,7 +553,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sourcesBody =>
-      'Quran text: Tanzil.net (Uthmani, verbatim). Recitation: Al-Husary (Muallim) and Mishary Alafasy, via quran.com. Speech model: Quran-Lab (free use only). Fonts: Amiri Quran, Amiri, IBM Plex Sans Arabic.';
+      'Quran text: Tanzil.net (Uthmani, verbatim). Recitation: Al-Husary (Muallim) and Mishary Alafasy, via quran.com. Speech model: Quran-Lab (free use only). Fonts: Amiri Quran, Amiri, IBM Plex Sans Arabic. Adhan: CC0 recording from Wikimedia Commons (File:Adhan.ogg, user Aishatu98). Prayer times: adhan_dart (MIT). Translations, unchanged: Saheeh International (English) and Muhammad Hamidullah (French), from Tanzil.net.';
 
   @override
   String get licenses => 'Licenses';
@@ -609,12 +614,286 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reciterAlafasyHelp => 'Flowing recitation. Downloads per surah.';
 
   @override
-  String get bundledNote => 'Al-Fatiha and Juz 30 are included in the app.';
-
-  @override
   String get tapWordHint =>
       'Tap a word to hear it. Tap the ayah number for more.';
 
   @override
   String get reciterHusaryShort => 'Al-Husary (teaching)';
+
+  @override
+  String get navPrayer => 'Prayer';
+
+  @override
+  String get prayerTabTimes => 'Times';
+
+  @override
+  String get prayerTabQibla => 'Qibla';
+
+  @override
+  String get prayerTabTasbih => 'Tasbih';
+
+  @override
+  String get prayerFajr => 'Fajr';
+
+  @override
+  String get prayerDhuhr => 'Dhuhr';
+
+  @override
+  String get prayerAsr => 'Asr';
+
+  @override
+  String get prayerMaghrib => 'Maghrib';
+
+  @override
+  String get prayerIsha => 'Isha';
+
+  @override
+  String prayerNext(String name) {
+    return 'Next: $name';
+  }
+
+  @override
+  String prayerIn(String time) {
+    return 'in $time';
+  }
+
+  @override
+  String get placeNeeded =>
+      'To show prayer times, Rattil needs your approximate place once. It stays on your phone and is never sent anywhere.';
+
+  @override
+  String get placeFind => 'Use my location';
+
+  @override
+  String get placeUpdate => 'Update my location';
+
+  @override
+  String placeSaved(String lat, String lon) {
+    return 'Saved place: $lat, $lon';
+  }
+
+  @override
+  String get placeServiceOff =>
+      'Location is turned off on this phone. Turn it on and try again.';
+
+  @override
+  String get placeDenied => 'Location was not allowed. Try again and allow it.';
+
+  @override
+  String get placeDeniedForever =>
+      'Location is blocked. Allow it for Rattil in the phone settings.';
+
+  @override
+  String get placeFailed =>
+      'Could not find your place. Check that location is on and try again.';
+
+  @override
+  String get methodLabel => 'Calculation method';
+
+  @override
+  String get methodMuslimWorldLeague => 'Muslim World League';
+
+  @override
+  String get methodTunisia => 'Tunisia (Ministry of Religious Affairs)';
+
+  @override
+  String get methodAlgerian => 'Algeria';
+
+  @override
+  String get methodMorocco => 'Morocco';
+
+  @override
+  String get methodEgyptian => 'Egypt (General Authority of Survey)';
+
+  @override
+  String get methodUmmAlQura => 'Umm al-Qura, Makkah';
+
+  @override
+  String get methodKarachi => 'Karachi (University of Islamic Sciences)';
+
+  @override
+  String get methodDubai => 'United Arab Emirates';
+
+  @override
+  String get methodQatar => 'Qatar';
+
+  @override
+  String get methodKuwait => 'Kuwait';
+
+  @override
+  String get methodTurkiye => 'Türkiye (Diyanet, approximation)';
+
+  @override
+  String get methodNorthAmerica => 'North America (ISNA)';
+
+  @override
+  String get methodFrance => 'France (UOIF)';
+
+  @override
+  String get methodIndonesian => 'Indonesia (Kemenag)';
+
+  @override
+  String get methodSingapore => 'Singapore and Malaysia';
+
+  @override
+  String get qiblaNeedsPlace => 'Save your place on the Times tab first.';
+
+  @override
+  String get qiblaNoSensor =>
+      'This phone has no compass sensor, so the Qibla arrow cannot work. The bearing below still helps with a compass.';
+
+  @override
+  String get qiblaCalibrate =>
+      'The compass needs calibration. Move the phone in a figure 8 and keep it away from metal and magnets.';
+
+  @override
+  String qiblaBearing(String deg) {
+    return 'Qibla: $deg° from north';
+  }
+
+  @override
+  String get qiblaFacing => 'You face the Qibla';
+
+  @override
+  String get qiblaHold => 'Hold the phone flat.';
+
+  @override
+  String get tasbihSubhan => 'SubhanAllah';
+
+  @override
+  String get tasbihHamd => 'Alhamdulillah';
+
+  @override
+  String get tasbihAkbar => 'Allahu Akbar';
+
+  @override
+  String tasbihCount(String count, String goal) {
+    return '$count of $goal';
+  }
+
+  @override
+  String get tasbihTapHint => 'Tap to count';
+
+  @override
+  String get tasbihGoalDone => 'Goal reached';
+
+  @override
+  String get tasbihAllDone => 'All three goals are done today';
+
+  @override
+  String get tasbihReset => 'Reset';
+
+  @override
+  String get notifyTitle => 'Notifications';
+
+  @override
+  String get notifyAdhan => 'Adhan at prayer time';
+
+  @override
+  String get notifyAdhanHelp =>
+      'Plays the Adhan, also when the app is closed. Needs your place.';
+
+  @override
+  String get notifyRecitation => 'Daily recitation reminder';
+
+  @override
+  String get notifyTasbih => 'Tasbih goal reminder';
+
+  @override
+  String notifyAt(String time) {
+    return 'At $time';
+  }
+
+  @override
+  String get notifyWhyTitle => 'Allow notifications?';
+
+  @override
+  String get notifyWhyBody =>
+      'Rattil needs to show notifications to remind you. Nothing is sent from your phone.';
+
+  @override
+  String get notifyDenied =>
+      'Notifications are blocked. Allow them in the phone settings.';
+
+  @override
+  String get notifyExactTitle => 'Exact time';
+
+  @override
+  String get notifyExactBody =>
+      'For the Adhan to ring at the exact minute, allow alarms on the next screen. Without it, it can be a few minutes late.';
+
+  @override
+  String get notifyContinue => 'Continue';
+
+  @override
+  String get notifyNotNow => 'Not now';
+
+  @override
+  String get notifyBattery =>
+      'On some phones, battery saving stops reminders. If the Adhan is late, allow Rattil to run in the background in the phone settings. After a restart, reminders come back when you open Rattil.';
+
+  @override
+  String get notifyNeedPlace => 'Save your place on the Prayer tab first.';
+
+  @override
+  String reminderAdhanBody(String prayer) {
+    return 'It is time for $prayer';
+  }
+
+  @override
+  String get reminderRecitationTitle => 'Time to recite';
+
+  @override
+  String get reminderRecitationBody =>
+      'A few ayahs today keep your goal on track.';
+
+  @override
+  String get reminderTasbihTitle => 'Tasbih';
+
+  @override
+  String get reminderTasbihBody => 'Your daily tasbih goal is waiting.';
+
+  @override
+  String get channelAdhan => 'Adhan';
+
+  @override
+  String get channelReminders => 'Reminders';
+
+  @override
+  String get translationTitle => 'Translation';
+
+  @override
+  String get translationNone => 'No translation';
+
+  @override
+  String get translationEn => 'English: Saheeh International';
+
+  @override
+  String get translationFr => 'French: Muhammad Hamidullah';
+
+  @override
+  String get translationHelp =>
+      'Shown under each ayah in the Read screen, for the Hafs text. Works without internet. Text from Tanzil.net, unchanged.';
+
+  @override
+  String get noteAdd => 'Add a note';
+
+  @override
+  String get noteEdit => 'Edit note';
+
+  @override
+  String get noteHint => 'Your note. It stays on this phone.';
+
+  @override
+  String get noteSave => 'Save';
+
+  @override
+  String get noteDelete => 'Delete note';
+
+  @override
+  String get soundEffects => 'Sound effects';
+
+  @override
+  String get soundEffectsHelp =>
+      'Soft clicks and short tones. Turn off to mute all of them.';
 }

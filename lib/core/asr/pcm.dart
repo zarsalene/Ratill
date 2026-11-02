@@ -29,9 +29,11 @@ double rmsDbfs(Float32List samples) {
 ///
 /// The teacher must not judge a recitation it cannot hear well, so [isNoisy]
 /// is true when the background is loud or speech is not clearly above it.
-/// Thresholds are starting values for tool/eval to tune.
+/// The limits are loose on purpose: a quiet room must not trigger the warning
+/// (the mic's auto gain raises the floor). The values need a check on a real
+/// phone; tool/eval can tune them.
 class NoiseMeter {
-  NoiseMeter({this.maxNoiseDbfs = -38, this.minSnrDb = 12, this.smoothing = 0.1});
+  NoiseMeter({this.maxNoiseDbfs = -30, this.minSnrDb = 8, this.smoothing = 0.1, this.minNoisyMs = 3000});
 
   final double maxNoiseDbfs;
   final double minSnrDb;
@@ -39,12 +41,17 @@ class NoiseMeter {
   /// Weight of each new frame in the running averages.
   final double smoothing;
 
+  /// How long the audio must stay bad, without a break, before [isNoisy].
+  final int minNoisyMs;
+
   double? _noise;
   double? _speech;
+  int _badMs = 0;
 
   double? get noiseDbfs => _noise;
   double? get speechDbfs => _speech;
 
+  /// Adds one frame of 16 kHz audio.
   void add(Float32List frame, {required bool speech}) {
     final level = rmsDbfs(frame);
     if (speech) {
@@ -52,9 +59,10 @@ class NoiseMeter {
     } else {
       _noise = _noise == null ? level : _noise! + smoothing * (level - _noise!);
     }
+    _badMs = _isBad ? _badMs + frame.length * 1000 ~/ 16000 : 0;
   }
 
-  bool get isNoisy {
+  bool get _isBad {
     final noise = _noise;
     if (noise == null) return false;
     if (noise > maxNoiseDbfs) return true;
@@ -62,8 +70,11 @@ class NoiseMeter {
     return speech != null && speech - noise < minSnrDb;
   }
 
+  bool get isNoisy => _badMs >= minNoisyMs;
+
   void reset() {
     _noise = null;
     _speech = null;
+    _badMs = 0;
   }
 }
