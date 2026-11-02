@@ -4,7 +4,14 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Run by hand (Actions tab, "Run workflow"). Tick "publish" to also make a
+  # release from the chosen branch. See DEPLOY.md.
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish the APKs as the latest release'
+        type: boolean
+        default: false
 
 # Third-party actions are pinned to a full commit SHA (the tag is in the
 # comment): a moved tag cannot change what runs. The build job can only read.
@@ -64,7 +71,7 @@ jobs:
 
   publish:
     needs: apk
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || inputs.publish)
     runs-on: ubuntu-latest
     permissions:
       contents: write # to publish the APKs as a GitHub Release
