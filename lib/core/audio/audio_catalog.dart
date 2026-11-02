@@ -93,14 +93,14 @@ class Reciter {
     this.surahs,
   });
 
-  /// Storage key: 'husary_muallim', 'alafasy', or 'mp3q_<moshaf id>'.
+  /// Storage key: 'husary_muallim', 'alafasy', or `mp3q_<moshaf id>`.
   final String id;
 
   /// Display name (empty for built-ins: the UI names them).
   final String name;
   final Riwaya riwaya;
 
-  /// assets/quran/audio_<id>.json: surah URLs, sizes, word timings.
+  /// `assets/quran/audio_<id>.json`: surah URLs, sizes, word timings.
   final String? timingsAsset;
 
   /// mp3quran.net folder, ending with '/'. Surah n is 'nnn.mp3' in it.

@@ -16,7 +16,7 @@ enum Riwaya {
 
   const Riwaya({required this.asset, required this.font, required this.mp3quranId, this.teacher = false});
 
-  /// assets/qiraat/<asset>.json, or null for Hafs (assets/quran).
+  /// `assets/qiraat/<asset>.json`, or null for Hafs (assets/quran).
   final String? asset;
 
   /// Font family that renders this text correctly.

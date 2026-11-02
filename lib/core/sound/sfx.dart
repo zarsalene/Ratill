@@ -16,9 +16,8 @@ enum SfxKind {
 /// switch mutes all of them. A sound that cannot play is ignored: a sound is
 /// never worth a crash.
 class Sfx {
-  Sfx({required bool Function() enabled, Future<void> Function(String asset)? player, DateTime Function()? clock})
-      : _enabled = enabled,
-        _play = player ?? _justAudio,
+  Sfx({required this._enabled, Future<void> Function(String asset)? player, DateTime Function()? clock})
+      : _play = player ?? _justAudio,
         _clock = clock ?? DateTime.now;
 
   final bool Function() _enabled;

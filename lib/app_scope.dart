@@ -30,8 +30,8 @@ class AppServices {
     required this.translations,
     required this.sfx,
     required this.notifications,
-    required Map<String, AudioCatalog> catalogs,
-  }) : _catalogs = catalogs {
+    required this._catalogs,
+  }) {
     settings.addListener(_syncPlayer);
     reciters.addListener(_syncPlayer);
   }
