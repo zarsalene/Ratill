@@ -2,7 +2,7 @@
 
 A free, offline Android app to read, memorize, and recite the Quran, with a recitation teacher that listens on the phone.
 
-No ads, no account, no analytics. Audio never leaves the phone. The network is used only to download recitation audio.
+No ads, no account, no analytics. Audio never leaves the phone. The network is used only to download files: recitation audio, and the speech model the teacher needs once (about 73 MB, checked against a pinned SHA-256). Nothing about you is sent.
 
 > Automatic feedback can be wrong. It does not replace a qualified teacher.
 
@@ -31,8 +31,9 @@ sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 flutter config --android-sdk <path-to-android-sdk>
 flutter doctor --android-licenses
 
-# Models: downloaded and checked against pinned SHA-256 sums
-python tool/fetch_models.py
+# Model files in the APK: downloaded and checked against pinned SHA-256 sums
+# (without --bundled it also fetches the 72 MB speech model, for tests)
+python tool/fetch_models.py --bundled
 
 flutter pub get
 flutter analyze
@@ -60,6 +61,11 @@ The APKs are in `build/app/outputs/flutter-apk/`.
 - Speech model: zipformer_p-arabic-v2 by Muno459 / Quran-Lab, under the Quran-Lab No-Profit License 1.1. It may be used only in apps that are free for their users. The license file ships in the app.
 - Voice activity detection: [Silero VAD](https://github.com/snakers4/silero-vad) through [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx).
 - Recitation audio: [everyayah.com](https://everyayah.com).
+- Translations (verbatim, pinned in `data/CHECKSUMS`): Saheeh International (English) and Muhammad Hamidullah (French), from [Tanzil.net](https://tanzil.net). Redistribution terms of these two files: not verified (the Tanzil files carry no license text).
+- Prayer times: [adhan_dart](https://pub.dev/packages/adhan_dart) (MIT), computed on the phone. Tunisia method: Fajr 18, Isha 18 (checked against the AlAdhan API for Tunis and Makkah).
+- Adhan: CC0 recording [File:Adhan.ogg](https://commons.wikimedia.org/wiki/File:Adhan.ogg) on Wikimedia Commons (user Aishatu98). The CC0 mark is the uploader's claim on Commons.
+- Sound effects: made by `tool/make_sounds.py` (plain tones, no outside license).
+- Location (coarse, once) and notifications stay on the phone. Nothing about you is sent anywhere.
 
 ## Download website
 

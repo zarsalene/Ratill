@@ -8,9 +8,10 @@ import '../../core/align/session.dart';
 import '../../core/align/units.dart';
 import '../../core/asr/asr_engine.dart';
 import '../../core/asr/asr_worker.dart';
+import '../../core/asr/model_store.dart';
 import '../../core/quran/quran_repo.dart';
 
-enum TeacherPhase { loading, ready, listening, stopped, finished, error }
+enum TeacherPhase { loading, needsModel, ready, listening, stopped, finished, error }
 
 /// The words of one surah laid out for the teacher.
 class SurahLayout {
@@ -58,10 +59,12 @@ class SurahLayout {
 
 /// Runs recitations of an ayah range: mic → ASR → teacher session → UI state.
 class TeacherController extends ChangeNotifier {
-  TeacherController(this.layout, {this.mode = TeacherMode.strict, this.fromAyah = 1, int? toAyah, this.hidden = false})
+  TeacherController(this.layout, this.models,
+      {this.mode = TeacherMode.strict, this.fromAyah = 1, int? toAyah, this.hidden = false})
       : toAyah = toAyah ?? layout.ayahCount;
 
   final SurahLayout layout;
+  final ModelStore models;
   TeacherMode mode;
   int fromAyah;
   int toAyah;
@@ -115,9 +118,46 @@ class TeacherController extends ChangeNotifier {
         variants: layout.variants,
       );
 
+  /// Download of the speech model: progress 0..1 while it runs, else null.
+  double? modelProgress;
+
+  /// Downloads the speech model, then starts the teacher. On an error the
+  /// phase stays [TeacherPhase.needsModel] and [error] says why: call again to
+  /// retry (a partial file resumes).
+  Future<void> downloadModel() async {
+    if (modelProgress != null) return;
+    error = null;
+    modelProgress = 0;
+    notifyListeners();
+    try {
+      await models.download(onProgress: (p) {
+        modelProgress = p;
+        notifyListeners();
+      });
+    } catch (e) {
+      error = '$e';
+      modelProgress = null;
+      notifyListeners();
+      return;
+    }
+    modelProgress = null;
+    if (_disposed) return;
+    await init();
+  }
+
   Future<void> init() async {
     try {
-      final engine = await AsrEngine.start();
+      if (!await models.isReady()) {
+        phase = TeacherPhase.needsModel;
+        notifyListeners();
+        return;
+      }
+      final engine = await AsrEngine.start(models);
+      if (_disposed) {
+        // The reader left while the model loaded: free the mic and the model.
+        await engine.dispose();
+        return;
+      }
       _engine = engine;
       _sub = engine.updates.listen(_onUpdate);
       phase = TeacherPhase.ready;
@@ -266,8 +306,16 @@ class TeacherController extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _disposed = false;
+
+  @override
+  void notifyListeners() {
+    if (!_disposed) super.notifyListeners(); // a download or load can end after the screen is gone
+  }
+
   @override
   void dispose() {
+    _disposed = true;
     _sub?.cancel();
     _engine?.dispose();
     super.dispose();

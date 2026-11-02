@@ -104,7 +104,7 @@ class _Bookmarks extends StatelessWidget {
     return ListenableBuilder(
       listenable: s.progress,
       builder: (context, _) {
-        final list = s.progress.bookmarkList();
+        final list = s.progress.savedList();
         if (list.isEmpty) {
           return Center(
             child: Padding(padding: const EdgeInsets.all(32), child: Text(t.noBookmarks, textAlign: TextAlign.center)),
@@ -113,9 +113,13 @@ class _Bookmarks extends StatelessWidget {
         return ListView(children: [
           for (final r in list)
             ListTile(
-              leading: const Icon(Icons.bookmark),
+              leading: Icon(s.progress.isBookmarked(r.surah, r.ayah) ? Icons.bookmark : Icons.edit_note),
               title: Text(s.surahs[r.surah - 1].name, style: const TextStyle(fontSize: 20)),
-              subtitle: Text('${t.ayahN(r.ayah)} · ${t.pageN(s.meta.pageOf(r))}'),
+              subtitle: Text([
+                '${t.ayahN(r.ayah)} · ${t.pageN(s.meta.pageOf(r))}',
+                ?s.progress.noteFor(r.surah, r.ayah),
+              ].join('\n')),
+              isThreeLine: s.progress.noteFor(r.surah, r.ayah) != null,
               onTap: () => openRead(context, r.surah, ayah: r.ayah),
             ),
         ]);

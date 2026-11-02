@@ -258,17 +258,23 @@ class PulseRings extends StatefulWidget {
 class _PulseRingsState extends State<PulseRings> with SingleTickerProviderStateMixin {
   late final _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600));
 
+  // The rings only move when the phone's "reduce motion" setting is off.
+  void _sync() {
+    final move = widget.active && !MediaQuery.disableAnimationsOf(context);
+    if (move && !_c.isAnimating) _c.repeat();
+    if (!move && _c.isAnimating) _c.stop();
+  }
+
   @override
-  void initState() {
-    super.initState();
-    if (widget.active) _c.repeat();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sync();
   }
 
   @override
   void didUpdateWidget(PulseRings old) {
     super.didUpdateWidget(old);
-    if (widget.active && !_c.isAnimating) _c.repeat();
-    if (!widget.active && _c.isAnimating) _c.stop();
+    _sync();
   }
 
   @override

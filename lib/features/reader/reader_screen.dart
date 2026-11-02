@@ -93,7 +93,7 @@ class _ReaderScreenState extends State<ReaderScreen> {
       body: surah == null
           ? const Center(child: CircularProgressIndicator())
           : ListenableBuilder(
-              listenable: Listenable.merge([_services.player, _services.settings, _services.progress]),
+              listenable: Listenable.merge([_services.player, _services.settings, _services.progress, _services.translations]),
               builder: (context, _) => ScrollablePositionedList.builder(
                 itemScrollController: _scroll,
                 itemPositionsListener: _positions,
@@ -176,7 +176,7 @@ class _AyahTileState extends State<_AyahTile> {
             child: Text('$sn:$n', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: scheme.onSurfaceVariant)),
           ),
           const Spacer(),
-          if (s.audio.isAvailable(sn))
+          if (s.audio?.isAvailable(sn) ?? false)
             IconButton(
               tooltip: t.playFromHere,
               visualDensity: VisualDensity.compact,
@@ -218,6 +218,23 @@ class _AyahTileState extends State<_AyahTile> {
           textDirection: TextDirection.rtl,
           textAlign: TextAlign.justify,
         ),
+        if (s.progress.noteFor(sn, n) case final note?)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: InkWell(
+              onTap: () => showNoteDialog(context, sn, n),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Icon(Icons.edit_note, size: 18, color: scheme.secondary),
+                const SizedBox(width: 6),
+                Expanded(child: Text(note, style: Theme.of(context).textTheme.bodyMedium)),
+              ]),
+            ),
+          ),
+        if (s.translations.of(sn, n) case final tr?)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(tr, textDirection: TextDirection.ltr, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant)),
+          ),
       ]),
     );
   }

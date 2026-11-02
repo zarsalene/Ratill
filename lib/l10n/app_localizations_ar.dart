@@ -47,6 +47,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherLoading => 'جارٍ تجهيز المعلّم…';
 
   @override
+  String get modelNeeded =>
+      'يحتاج المعلّم إلى تنزيل لمرة واحدة. يُفضَّل استخدام الواي فاي.';
+
+  @override
   String get tapToStart => 'اضغط على الميكروفون واقرأ';
 
   @override
@@ -296,10 +300,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tabJuz => 'الأجزاء';
 
   @override
-  String get bookmarks => 'العلامات';
+  String get bookmarks => 'المحفوظات';
 
   @override
-  String get noBookmarks => 'لا علامات بعد. اضغط على آية لإضافة علامة.';
+  String get noBookmarks =>
+      'لا شيء محفوظ بعد. اضغط على آية لإضافة علامة أو ملاحظة.';
 
   @override
   String get pageView => 'عرض الصفحات';
@@ -557,7 +562,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sourcesBody =>
-      'نص القرآن: موقع تنزيل (الرسم العثماني، دون تغيير). التلاوة: الحصري (المصحف المعلّم) ومشاري العفاسي عبر quran.com. نموذج الصوت: Quran-Lab (للاستخدام المجاني فقط). الخطوط: Amiri Quran وAmiri وIBM Plex Sans Arabic.';
+      'نص القرآن: موقع تنزيل (الرسم العثماني، دون تغيير). التلاوة: الحصري (المصحف المعلّم) ومشاري العفاسي عبر quran.com. نموذج الصوت: Quran-Lab (للاستخدام المجاني فقط). الخطوط: Amiri Quran وAmiri وIBM Plex Sans Arabic. الأذان: تسجيل CC0 من ويكيميديا كومنز (File:Adhan.ogg، المستخدم Aishatu98). أوقات الصلاة: adhan_dart (MIT). الترجمات دون تغيير: Saheeh International (الإنجليزية) ومحمد حميد الله (الفرنسية) من موقع تنزيل.';
 
   @override
   String get licenses => 'التراخيص';
@@ -617,11 +622,283 @@ class AppLocalizationsAr extends AppLocalizations {
       'تلاوة مرتّلة متصلة. تُنزَّل كل سورة على حدة.';
 
   @override
-  String get bundledNote => 'الفاتحة وجزء عمّ مضمّنان في التطبيق.';
-
-  @override
   String get tapWordHint => 'اضغط على كلمة لتسمعها. اضغط على رقم الآية للمزيد.';
 
   @override
   String get reciterHusaryShort => 'الحصري (المعلّم)';
+
+  @override
+  String get navPrayer => 'الصلاة';
+
+  @override
+  String get prayerTabTimes => 'الأوقات';
+
+  @override
+  String get prayerTabQibla => 'القبلة';
+
+  @override
+  String get prayerTabTasbih => 'التسبيح';
+
+  @override
+  String get prayerFajr => 'الفجر';
+
+  @override
+  String get prayerDhuhr => 'الظهر';
+
+  @override
+  String get prayerAsr => 'العصر';
+
+  @override
+  String get prayerMaghrib => 'المغرب';
+
+  @override
+  String get prayerIsha => 'العشاء';
+
+  @override
+  String prayerNext(String name) {
+    return 'التالية: $name';
+  }
+
+  @override
+  String prayerIn(String time) {
+    return 'بعد $time';
+  }
+
+  @override
+  String get placeNeeded =>
+      'لعرض أوقات الصلاة يحتاج رتّل إلى موقعك التقريبي مرة واحدة. يبقى على هاتفك ولا يُرسل إلى أي جهة.';
+
+  @override
+  String get placeFind => 'استخدام موقعي';
+
+  @override
+  String get placeUpdate => 'تحديث موقعي';
+
+  @override
+  String placeSaved(String lat, String lon) {
+    return 'الموقع المحفوظ: $lat، $lon';
+  }
+
+  @override
+  String get placeServiceOff =>
+      'خدمة الموقع متوقفة في هذا الهاتف. شغّلها ثم حاول مرة أخرى.';
+
+  @override
+  String get placeDenied => 'لم يُسمح بالموقع. حاول مرة أخرى واسمح به.';
+
+  @override
+  String get placeDeniedForever =>
+      'الموقع محظور. اسمح به لرتّل من إعدادات الهاتف.';
+
+  @override
+  String get placeFailed =>
+      'تعذّر تحديد موقعك. تأكد من تشغيل الموقع وحاول مرة أخرى.';
+
+  @override
+  String get methodLabel => 'طريقة الحساب';
+
+  @override
+  String get methodMuslimWorldLeague => 'رابطة العالم الإسلامي';
+
+  @override
+  String get methodTunisia => 'تونس (وزارة الشؤون الدينية)';
+
+  @override
+  String get methodAlgerian => 'الجزائر';
+
+  @override
+  String get methodMorocco => 'المغرب';
+
+  @override
+  String get methodEgyptian => 'مصر (الهيئة المصرية العامة للمساحة)';
+
+  @override
+  String get methodUmmAlQura => 'أم القرى، مكة المكرمة';
+
+  @override
+  String get methodKarachi => 'كراتشي (جامعة العلوم الإسلامية)';
+
+  @override
+  String get methodDubai => 'الإمارات العربية المتحدة';
+
+  @override
+  String get methodQatar => 'قطر';
+
+  @override
+  String get methodKuwait => 'الكويت';
+
+  @override
+  String get methodTurkiye => 'تركيا (تقريب لطريقة ديانت)';
+
+  @override
+  String get methodNorthAmerica => 'أمريكا الشمالية (ISNA)';
+
+  @override
+  String get methodFrance => 'فرنسا (UOIF)';
+
+  @override
+  String get methodIndonesian => 'إندونيسيا (وزارة الشؤون الدينية)';
+
+  @override
+  String get methodSingapore => 'سنغافورة وماليزيا';
+
+  @override
+  String get qiblaNeedsPlace => 'احفظ موقعك أولاً من تبويب الأوقات.';
+
+  @override
+  String get qiblaNoSensor =>
+      'ليس في هذا الهاتف حسّاس بوصلة، فلا يعمل سهم القبلة. تبقى الزاوية أدناه مفيدة مع بوصلة.';
+
+  @override
+  String get qiblaCalibrate =>
+      'تحتاج البوصلة إلى معايرة. حرّك الهاتف على شكل الرقم 8 وأبعده عن المعادن والمغناطيس.';
+
+  @override
+  String qiblaBearing(String deg) {
+    return 'القبلة: $deg° من الشمال';
+  }
+
+  @override
+  String get qiblaFacing => 'أنت مستقبل القبلة';
+
+  @override
+  String get qiblaHold => 'أمسك الهاتف بشكل مستوٍ.';
+
+  @override
+  String get tasbihSubhan => 'سبحان الله';
+
+  @override
+  String get tasbihHamd => 'الحمد لله';
+
+  @override
+  String get tasbihAkbar => 'الله أكبر';
+
+  @override
+  String tasbihCount(String count, String goal) {
+    return '$count من $goal';
+  }
+
+  @override
+  String get tasbihTapHint => 'المس للعدّ';
+
+  @override
+  String get tasbihGoalDone => 'تم بلوغ الهدف';
+
+  @override
+  String get tasbihAllDone => 'تمّت الأهداف الثلاثة اليوم';
+
+  @override
+  String get tasbihReset => 'تصفير';
+
+  @override
+  String get notifyTitle => 'الإشعارات';
+
+  @override
+  String get notifyAdhan => 'الأذان عند وقت الصلاة';
+
+  @override
+  String get notifyAdhanHelp =>
+      'يُرفع الأذان حتى والتطبيق مغلق. يحتاج إلى موقعك.';
+
+  @override
+  String get notifyRecitation => 'تذكير يومي بالتلاوة';
+
+  @override
+  String get notifyTasbih => 'تذكير بهدف التسبيح';
+
+  @override
+  String notifyAt(String time) {
+    return 'عند $time';
+  }
+
+  @override
+  String get notifyWhyTitle => 'السماح بالإشعارات؟';
+
+  @override
+  String get notifyWhyBody =>
+      'يحتاج رتّل إلى عرض الإشعارات ليذكّرك. لا يُرسل شيء من هاتفك.';
+
+  @override
+  String get notifyDenied => 'الإشعارات محظورة. اسمح بها من إعدادات الهاتف.';
+
+  @override
+  String get notifyExactTitle => 'الوقت الدقيق';
+
+  @override
+  String get notifyExactBody =>
+      'ليرتفع الأذان في الدقيقة نفسها، اسمح بالمنبّهات في الشاشة التالية. بدونها قد يتأخر بضع دقائق.';
+
+  @override
+  String get notifyContinue => 'متابعة';
+
+  @override
+  String get notifyNotNow => 'ليس الآن';
+
+  @override
+  String get notifyBattery =>
+      'في بعض الهواتف يوقف توفير البطارية التذكيرات. إذا تأخر الأذان فاسمح لرتّل بالعمل في الخلفية من إعدادات الهاتف. بعد إعادة التشغيل تعود التذكيرات عند فتح رتّل.';
+
+  @override
+  String get notifyNeedPlace => 'احفظ موقعك أولاً من تبويب الصلاة.';
+
+  @override
+  String reminderAdhanBody(String prayer) {
+    return 'حان وقت صلاة $prayer';
+  }
+
+  @override
+  String get reminderRecitationTitle => 'حان وقت التلاوة';
+
+  @override
+  String get reminderRecitationBody => 'بضع آيات اليوم تُبقي هدفك على الطريق.';
+
+  @override
+  String get reminderTasbihTitle => 'التسبيح';
+
+  @override
+  String get reminderTasbihBody => 'هدفك اليومي من التسبيح ينتظرك.';
+
+  @override
+  String get channelAdhan => 'الأذان';
+
+  @override
+  String get channelReminders => 'التذكيرات';
+
+  @override
+  String get translationTitle => 'الترجمة';
+
+  @override
+  String get translationNone => 'بدون ترجمة';
+
+  @override
+  String get translationEn => 'الإنجليزية: Saheeh International';
+
+  @override
+  String get translationFr => 'الفرنسية: محمد حميد الله';
+
+  @override
+  String get translationHelp =>
+      'تظهر تحت كل آية في شاشة القراءة لنص حفص، وتعمل دون إنترنت. النص من موقع تنزيل دون تغيير.';
+
+  @override
+  String get noteAdd => 'إضافة ملاحظة';
+
+  @override
+  String get noteEdit => 'تعديل الملاحظة';
+
+  @override
+  String get noteHint => 'ملاحظتك. تبقى على هذا الهاتف.';
+
+  @override
+  String get noteSave => 'حفظ';
+
+  @override
+  String get noteDelete => 'حذف الملاحظة';
+
+  @override
+  String get soundEffects => 'المؤثرات الصوتية';
+
+  @override
+  String get soundEffectsHelp =>
+      'نقرات هادئة ونغمات قصيرة. أوقفها لكتم الجميع.';
 }

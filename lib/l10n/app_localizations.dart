@@ -154,6 +154,12 @@ abstract class AppLocalizations {
   /// **'Preparing the teacher…'**
   String get teacherLoading;
 
+  /// No description provided for @modelNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'The teacher needs a one-time download. Wi-Fi is best.'**
+  String get modelNeeded;
+
   /// No description provided for @tapToStart.
   ///
   /// In en, this message translates to:
@@ -535,13 +541,13 @@ abstract class AppLocalizations {
   /// No description provided for @bookmarks.
   ///
   /// In en, this message translates to:
-  /// **'Bookmarks'**
+  /// **'Saved'**
   String get bookmarks;
 
   /// No description provided for @noBookmarks.
   ///
   /// In en, this message translates to:
-  /// **'No bookmarks yet. Tap an ayah to add one.'**
+  /// **'Nothing saved yet. Tap an ayah to add a bookmark or a note.'**
   String get noBookmarks;
 
   /// No description provided for @pageView.
@@ -1009,7 +1015,7 @@ abstract class AppLocalizations {
   /// No description provided for @sourcesBody.
   ///
   /// In en, this message translates to:
-  /// **'Quran text: Tanzil.net (Uthmani, verbatim). Recitation: Al-Husary (Muallim) and Mishary Alafasy, via quran.com. Speech model: Quran-Lab (free use only). Fonts: Amiri Quran, Amiri, IBM Plex Sans Arabic.'**
+  /// **'Quran text: Tanzil.net (Uthmani, verbatim). Recitation: Al-Husary (Muallim) and Mishary Alafasy, via quran.com. Speech model: Quran-Lab (free use only). Fonts: Amiri Quran, Amiri, IBM Plex Sans Arabic. Adhan: CC0 recording from Wikimedia Commons (File:Adhan.ogg, user Aishatu98). Prayer times: adhan_dart (MIT). Translations, unchanged: Saheeh International (English) and Muhammad Hamidullah (French), from Tanzil.net.'**
   String get sourcesBody;
 
   /// No description provided for @licenses.
@@ -1120,12 +1126,6 @@ abstract class AppLocalizations {
   /// **'Flowing recitation. Downloads per surah.'**
   String get reciterAlafasyHelp;
 
-  /// No description provided for @bundledNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Al-Fatiha and Juz 30 are included in the app.'**
-  String get bundledNote;
-
   /// No description provided for @tapWordHint.
   ///
   /// In en, this message translates to:
@@ -1137,6 +1137,504 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Al-Husary (teaching)'**
   String get reciterHusaryShort;
+
+  /// No description provided for @navPrayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Prayer'**
+  String get navPrayer;
+
+  /// No description provided for @prayerTabTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Times'**
+  String get prayerTabTimes;
+
+  /// No description provided for @prayerTabQibla.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla'**
+  String get prayerTabQibla;
+
+  /// No description provided for @prayerTabTasbih.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasbih'**
+  String get prayerTabTasbih;
+
+  /// No description provided for @prayerFajr.
+  ///
+  /// In en, this message translates to:
+  /// **'Fajr'**
+  String get prayerFajr;
+
+  /// No description provided for @prayerDhuhr.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhuhr'**
+  String get prayerDhuhr;
+
+  /// No description provided for @prayerAsr.
+  ///
+  /// In en, this message translates to:
+  /// **'Asr'**
+  String get prayerAsr;
+
+  /// No description provided for @prayerMaghrib.
+  ///
+  /// In en, this message translates to:
+  /// **'Maghrib'**
+  String get prayerMaghrib;
+
+  /// No description provided for @prayerIsha.
+  ///
+  /// In en, this message translates to:
+  /// **'Isha'**
+  String get prayerIsha;
+
+  /// No description provided for @prayerNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {name}'**
+  String prayerNext(String name);
+
+  /// No description provided for @prayerIn.
+  ///
+  /// In en, this message translates to:
+  /// **'in {time}'**
+  String prayerIn(String time);
+
+  /// No description provided for @placeNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'To show prayer times, Rattil needs your approximate place once. It stays on your phone and is never sent anywhere.'**
+  String get placeNeeded;
+
+  /// No description provided for @placeFind.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get placeFind;
+
+  /// No description provided for @placeUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update my location'**
+  String get placeUpdate;
+
+  /// No description provided for @placeSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved place: {lat}, {lon}'**
+  String placeSaved(String lat, String lon);
+
+  /// No description provided for @placeServiceOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is turned off on this phone. Turn it on and try again.'**
+  String get placeServiceOff;
+
+  /// No description provided for @placeDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location was not allowed. Try again and allow it.'**
+  String get placeDenied;
+
+  /// No description provided for @placeDeniedForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is blocked. Allow it for Rattil in the phone settings.'**
+  String get placeDeniedForever;
+
+  /// No description provided for @placeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not find your place. Check that location is on and try again.'**
+  String get placeFailed;
+
+  /// No description provided for @methodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation method'**
+  String get methodLabel;
+
+  /// No description provided for @methodMuslimWorldLeague.
+  ///
+  /// In en, this message translates to:
+  /// **'Muslim World League'**
+  String get methodMuslimWorldLeague;
+
+  /// No description provided for @methodTunisia.
+  ///
+  /// In en, this message translates to:
+  /// **'Tunisia (Ministry of Religious Affairs)'**
+  String get methodTunisia;
+
+  /// No description provided for @methodAlgerian.
+  ///
+  /// In en, this message translates to:
+  /// **'Algeria'**
+  String get methodAlgerian;
+
+  /// No description provided for @methodMorocco.
+  ///
+  /// In en, this message translates to:
+  /// **'Morocco'**
+  String get methodMorocco;
+
+  /// No description provided for @methodEgyptian.
+  ///
+  /// In en, this message translates to:
+  /// **'Egypt (General Authority of Survey)'**
+  String get methodEgyptian;
+
+  /// No description provided for @methodUmmAlQura.
+  ///
+  /// In en, this message translates to:
+  /// **'Umm al-Qura, Makkah'**
+  String get methodUmmAlQura;
+
+  /// No description provided for @methodKarachi.
+  ///
+  /// In en, this message translates to:
+  /// **'Karachi (University of Islamic Sciences)'**
+  String get methodKarachi;
+
+  /// No description provided for @methodDubai.
+  ///
+  /// In en, this message translates to:
+  /// **'United Arab Emirates'**
+  String get methodDubai;
+
+  /// No description provided for @methodQatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Qatar'**
+  String get methodQatar;
+
+  /// No description provided for @methodKuwait.
+  ///
+  /// In en, this message translates to:
+  /// **'Kuwait'**
+  String get methodKuwait;
+
+  /// No description provided for @methodTurkiye.
+  ///
+  /// In en, this message translates to:
+  /// **'Türkiye (Diyanet, approximation)'**
+  String get methodTurkiye;
+
+  /// No description provided for @methodNorthAmerica.
+  ///
+  /// In en, this message translates to:
+  /// **'North America (ISNA)'**
+  String get methodNorthAmerica;
+
+  /// No description provided for @methodFrance.
+  ///
+  /// In en, this message translates to:
+  /// **'France (UOIF)'**
+  String get methodFrance;
+
+  /// No description provided for @methodIndonesian.
+  ///
+  /// In en, this message translates to:
+  /// **'Indonesia (Kemenag)'**
+  String get methodIndonesian;
+
+  /// No description provided for @methodSingapore.
+  ///
+  /// In en, this message translates to:
+  /// **'Singapore and Malaysia'**
+  String get methodSingapore;
+
+  /// No description provided for @qiblaNeedsPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your place on the Times tab first.'**
+  String get qiblaNeedsPlace;
+
+  /// No description provided for @qiblaNoSensor.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone has no compass sensor, so the Qibla arrow cannot work. The bearing below still helps with a compass.'**
+  String get qiblaNoSensor;
+
+  /// No description provided for @qiblaCalibrate.
+  ///
+  /// In en, this message translates to:
+  /// **'The compass needs calibration. Move the phone in a figure 8 and keep it away from metal and magnets.'**
+  String get qiblaCalibrate;
+
+  /// No description provided for @qiblaBearing.
+  ///
+  /// In en, this message translates to:
+  /// **'Qibla: {deg}° from north'**
+  String qiblaBearing(String deg);
+
+  /// No description provided for @qiblaFacing.
+  ///
+  /// In en, this message translates to:
+  /// **'You face the Qibla'**
+  String get qiblaFacing;
+
+  /// No description provided for @qiblaHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the phone flat.'**
+  String get qiblaHold;
+
+  /// No description provided for @tasbihSubhan.
+  ///
+  /// In en, this message translates to:
+  /// **'SubhanAllah'**
+  String get tasbihSubhan;
+
+  /// No description provided for @tasbihHamd.
+  ///
+  /// In en, this message translates to:
+  /// **'Alhamdulillah'**
+  String get tasbihHamd;
+
+  /// No description provided for @tasbihAkbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Allahu Akbar'**
+  String get tasbihAkbar;
+
+  /// No description provided for @tasbihCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {goal}'**
+  String tasbihCount(String count, String goal);
+
+  /// No description provided for @tasbihTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to count'**
+  String get tasbihTapHint;
+
+  /// No description provided for @tasbihGoalDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached'**
+  String get tasbihGoalDone;
+
+  /// No description provided for @tasbihAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All three goals are done today'**
+  String get tasbihAllDone;
+
+  /// No description provided for @tasbihReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get tasbihReset;
+
+  /// No description provided for @notifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifyTitle;
+
+  /// No description provided for @notifyAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan at prayer time'**
+  String get notifyAdhan;
+
+  /// No description provided for @notifyAdhanHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Plays the Adhan, also when the app is closed. Needs your place.'**
+  String get notifyAdhanHelp;
+
+  /// No description provided for @notifyRecitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily recitation reminder'**
+  String get notifyRecitation;
+
+  /// No description provided for @notifyTasbih.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasbih goal reminder'**
+  String get notifyTasbih;
+
+  /// No description provided for @notifyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'At {time}'**
+  String notifyAt(String time);
+
+  /// No description provided for @notifyWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications?'**
+  String get notifyWhyTitle;
+
+  /// No description provided for @notifyWhyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Rattil needs to show notifications to remind you. Nothing is sent from your phone.'**
+  String get notifyWhyBody;
+
+  /// No description provided for @notifyDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are blocked. Allow them in the phone settings.'**
+  String get notifyDenied;
+
+  /// No description provided for @notifyExactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact time'**
+  String get notifyExactTitle;
+
+  /// No description provided for @notifyExactBody.
+  ///
+  /// In en, this message translates to:
+  /// **'For the Adhan to ring at the exact minute, allow alarms on the next screen. Without it, it can be a few minutes late.'**
+  String get notifyExactBody;
+
+  /// No description provided for @notifyContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get notifyContinue;
+
+  /// No description provided for @notifyNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get notifyNotNow;
+
+  /// No description provided for @notifyBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'On some phones, battery saving stops reminders. If the Adhan is late, allow Rattil to run in the background in the phone settings. After a restart, reminders come back when you open Rattil.'**
+  String get notifyBattery;
+
+  /// No description provided for @notifyNeedPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your place on the Prayer tab first.'**
+  String get notifyNeedPlace;
+
+  /// No description provided for @reminderAdhanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It is time for {prayer}'**
+  String reminderAdhanBody(String prayer);
+
+  /// No description provided for @reminderRecitationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to recite'**
+  String get reminderRecitationTitle;
+
+  /// No description provided for @reminderRecitationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A few ayahs today keep your goal on track.'**
+  String get reminderRecitationBody;
+
+  /// No description provided for @reminderTasbihTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasbih'**
+  String get reminderTasbihTitle;
+
+  /// No description provided for @reminderTasbihBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily tasbih goal is waiting.'**
+  String get reminderTasbihBody;
+
+  /// No description provided for @channelAdhan.
+  ///
+  /// In en, this message translates to:
+  /// **'Adhan'**
+  String get channelAdhan;
+
+  /// No description provided for @channelReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get channelReminders;
+
+  /// No description provided for @translationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation'**
+  String get translationTitle;
+
+  /// No description provided for @translationNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No translation'**
+  String get translationNone;
+
+  /// No description provided for @translationEn.
+  ///
+  /// In en, this message translates to:
+  /// **'English: Saheeh International'**
+  String get translationEn;
+
+  /// No description provided for @translationFr.
+  ///
+  /// In en, this message translates to:
+  /// **'French: Muhammad Hamidullah'**
+  String get translationFr;
+
+  /// No description provided for @translationHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown under each ayah in the Read screen, for the Hafs text. Works without internet. Text from Tanzil.net, unchanged.'**
+  String get translationHelp;
+
+  /// No description provided for @noteAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note'**
+  String get noteAdd;
+
+  /// No description provided for @noteEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit note'**
+  String get noteEdit;
+
+  /// No description provided for @noteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your note. It stays on this phone.'**
+  String get noteHint;
+
+  /// No description provided for @noteSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get noteSave;
+
+  /// No description provided for @noteDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete note'**
+  String get noteDelete;
+
+  /// No description provided for @soundEffects.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound effects'**
+  String get soundEffects;
+
+  /// No description provided for @soundEffectsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft clicks and short tones. Turn off to mute all of them.'**
+  String get soundEffectsHelp;
 }
 
 class _AppLocalizationsDelegate

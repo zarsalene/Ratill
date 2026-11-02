@@ -30,3 +30,6 @@ assets/models/tokens.txt
 assets/models/ASR_LICENSE.txt
 
 test/screenshots/out/
+
+# Website dev tools (Playwright): not part of the site
+prototype-pwa/node_modules/

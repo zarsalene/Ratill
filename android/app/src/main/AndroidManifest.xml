@@ -4,7 +4,17 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Audio and model downloads only. No analytics. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Prayer times: the phone's place at city level, once. Computed on the
+         phone, never sent anywhere. No fine or background location. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Adhan at the minute (the reader allows it in system settings). The
+         notification permission comes from the notifications plugin. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- allowBackup off: bookmarks, notes and the saved place must not go to a
+         cloud backup. usesCleartextTraffic off: no plain http, ever. -->
     <application
+        android:allowBackup="false"
+        android:usesCleartextTraffic="false"
         android:label="@string/app_name"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
@@ -30,6 +40,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Fires the scheduled Adhan and reminders. No boot receiver on purpose
+             (it needs RECEIVE_BOOT_COMPLETED, outside the permission list): after
+             a restart, reminders come back when the app is opened. -->
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

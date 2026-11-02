@@ -82,11 +82,29 @@ void main() {
       expect(t.wordSpan(1), (2000, 3000));
     });
 
-    test('bundled surahs are on disk for bundled reciters', () {
-      for (final r in Reciter.values.where((r) => r.bundled)) {
-        for (final s in AudioCatalog.bundledSurahs) {
-          expect(File('assets/audio/${r.key}/s${s.toString().padLeft(3, '0')}.mp3').existsSync(), isTrue,
-              reason: '${r.key} surah $s');
+    test('an ayah stops after its last word, even when the ayah end is earlier', () {
+      const t = AyahTiming(0, 5000, [(word: 0, from: 0, to: 2000), (word: 1, from: 2000, to: 5600)]);
+      expect(t.end, 5600);
+      const ok = AyahTiming(0, 5000, [(word: 0, from: 0, to: 4000)]);
+      expect(ok.end, 5000);
+      expect(const AyahTiming(0, 5000, []).end, 5000);
+    });
+
+    test('for every ayah of every built-in reciter, the stop time covers the last word', () {
+      for (final r in Reciter.builtIns) {
+        final data = jsonDecode(File(r.timingsAsset!).readAsStringSync()) as Map<String, dynamic>;
+        for (final s in data['surahs'] as List) {
+          final ayahs = (s as Map)['ayahs'] as List;
+          for (var a = 0; a < ayahs.length; a++) {
+            final row = ayahs[a] as List;
+            final segs = [
+              for (final w in row[2] as List) (word: (w as List)[0] as int, from: w[1] as int, to: w[2] as int),
+            ];
+            final t = AyahTiming(row[0] as int, row[1] as int, segs);
+            for (final seg in segs) {
+              expect(t.end, greaterThanOrEqualTo(seg.to), reason: '${r.id} ${s['s']}:${a + 1} word ${seg.word}');
+            }
+          }
         }
       }
     });

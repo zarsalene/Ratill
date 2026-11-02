@@ -40,11 +40,18 @@ dependencies:
   sherpa_onnx: ^1.13.8
   record: ^7.1.2
   flutter_riverpod: ^3.4.3
+  crypto: ^3.0.7
   path_provider: ^2.1.6
   just_audio: ^0.10.6
   shared_preferences: ^2.5.6
   wakelock_plus: ^1.8.2
   scrollable_positioned_list: ^0.3.8
+  adhan_dart: ^2.0.1
+  geolocator: ^14.0.1
+  flutter_local_notifications: ^22.3.3
+  timezone: ^0.11.2
+  flutter_timezone: ^5.1.1
+  sensors_plus: ^7.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -68,15 +75,17 @@ flutter:
   uses-material-design: true
   generate: true
 
-  # Fetched and verified by tool/fetch_models.py (not in Git).
+  # Small model files, fetched and verified by tool/fetch_models.py --bundled
+  # (not in Git). The 72 MB speech model is not bundled: the app downloads it
+  # (lib/core/asr/model_store.dart).
   assets:
-    - assets/models/asr.int8.onnx
     - assets/models/tokens.txt
     - assets/models/silero_vad.onnx
     - assets/models/ASR_LICENSE.txt
     - assets/quran/
-    # Al-Fatiha and Juz 30, Al-Husary Muallim (tool/fetch_audio.py).
-    - assets/audio/husary_muallim/
+    - assets/sfx/
+    # Translations (Tanzil.net, verbatim, pinned in data/CHECKSUMS).
+    - data/raw/tanzil/trans/
     - assets/fonts/AmiriQuran-OFL.txt
     - assets/fonts/IBMPlexSansArabic-OFL.txt
     - assets/fonts/Amiri-OFL.txt

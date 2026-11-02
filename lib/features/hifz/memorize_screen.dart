@@ -68,7 +68,7 @@ class _MemorizeScreenState extends State<MemorizeScreen> {
   Future<void> _enterListen() async {
     setState(() => _step = _Step.listen);
     _s.progress.setLast(ActivityKind.memorize, widget.surah, _ayah);
-    if (!_s.audio.isAvailable(widget.surah)) return;
+    if (!(_s.audio?.isAvailable(widget.surah) ?? false)) return;
     setState(() => _listening = true);
     try {
       _s.progress.addListened();
@@ -225,7 +225,7 @@ class _ListenStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final s = AppScope.of(context);
-    final hasAudio = s.audio.isAvailable(surah.number);
+    final hasAudio = s.audio?.isAvailable(surah.number) ?? false;
     return Column(
       children: [
         Expanded(

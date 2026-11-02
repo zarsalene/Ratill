@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../app_scope.dart';
 import '../../core/align/session.dart';
-import '../../core/audio/audio_catalog.dart';
+import '../../core/quran/translation.dart';
+import '../../core/sound/sfx.dart';
 import '../../l10n/app_localizations.dart';
 import '../common.dart';
 import '../home/home_screen.dart';
+import '../prayer/notifications_screen.dart';
+import '../reader/ayah_widgets.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -18,8 +21,13 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(t.navSettings)),
       body: ListenableBuilder(
-        listenable: Listenable.merge([st, s.audio]),
-        builder: (context, _) => ListView(children: [
+        listenable: Listenable.merge([st, s.reciters]),
+        // Inner builder: listens to the catalog of the reciter chosen now.
+        builder: (context, _) => ListenableBuilder(
+          listenable: s.audio ?? st,
+          builder: (context, _) {
+            final audio = s.audio;
+            return ListView(children: [
           _Section(t.settingsLanguage),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -67,6 +75,17 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
           ),
+          _Section(t.translationTitle),
+          RadioGroup<Translation?>(
+            groupValue: st.translation,
+            onChanged: (v) => st.translation = v,
+            child: Column(children: [
+              RadioListTile<Translation?>(value: null, title: Text(t.translationNone)),
+              RadioListTile<Translation?>(value: Translation.en, title: Text(t.translationEn)),
+              RadioListTile<Translation?>(value: Translation.fr, title: Text(t.translationFr)),
+            ]),
+          ),
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Text(t.translationHelp, style: Theme.of(context).textTheme.bodySmall)),
           _Section(t.settingsTeacher),
           RadioGroup<TeacherMode>(
             groupValue: st.teacherMode,
@@ -85,49 +104,73 @@ class SettingsScreen extends StatelessWidget {
             ]),
           ),
           _Section(t.settingsAudio),
-          RadioGroup<Reciter>(
-            groupValue: st.reciter,
-            onChanged: (v) => st.reciter = v!,
+          RadioGroup<String>(
+            groupValue: s.reciter?.id,
+            onChanged: (id) => s.useReciter(s.reciters.byId(id!)!),
             child: Column(children: [
-              RadioListTile(value: Reciter.husaryMuallim, title: Text(t.reciterHusary), subtitle: Text(t.reciterHusaryHelp)),
-              RadioListTile(value: Reciter.alafasy, title: Text(t.reciterName), subtitle: Text(t.reciterAlafasyHelp)),
+              for (final r in s.reciters.knownFor(s.riwaya))
+                RadioListTile(
+                  value: r.id,
+                  title: Text(r.id == 'husary_muallim' ? t.reciterHusary : reciterLabel(t, r)),
+                  subtitle: switch (r.id) {
+                    'husary_muallim' => Text(t.reciterHusaryHelp),
+                    'alafasy' => Text(t.reciterAlafasyHelp),
+                    _ => null,
+                  },
+                ),
             ]),
           ),
-          ListTile(
-            leading: const Icon(Icons.sd_storage_outlined),
-            title: Text(t.audioOnPhone((s.audio.downloadedBytes() / 1e6).toStringAsFixed(0))),
-            subtitle: s.audio.reciter.bundled ? Text(t.bundledNote) : null,
+          if (audio != null) ...[
+            ListTile(
+              leading: const Icon(Icons.sd_storage_outlined),
+              title: Text(t.audioOnPhone((audio.downloadedBytes() / 1e6).toStringAsFixed(0))),
+            ),
+            if ((audio.missingBytes() ?? 0) > 0)
+              ListTile(
+                leading: audio.downloadingAll
+                    ? const SizedBox.square(dimension: 24, child: CircularProgressIndicator())
+                    : const Icon(Icons.download),
+                title: Text(audio.downloadingAll
+                    ? t.downloadingAll(audio.downloading.keys.firstOrNull ?? 0)
+                    : t.downloadAll((audio.missingBytes()! / 1e6).toStringAsFixed(0))),
+                subtitle: Text(t.downloadAllHelp),
+                trailing: audio.downloadingAll ? TextButton(onPressed: audio.cancelAll, child: Text(t.stop)) : null,
+                onTap: audio.downloadingAll ? null : audio.downloadAll,
+              ),
+            if (audio.downloadedBytes() > 0)
+              ListTile(
+                leading: const Icon(Icons.delete_outline),
+                title: Text(t.deleteDownloads),
+                onTap: () async {
+                  final ok = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      content: Text(t.confirmDelete),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+                        FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.delete)),
+                      ],
+                    ),
+                  );
+                  if (ok == true) await audio.deleteDownloads();
+                },
+              ),
+          ],
+          SwitchListTile(
+            secondary: const Icon(Icons.volume_up_outlined),
+            title: Text(t.soundEffects),
+            subtitle: Text(t.soundEffectsHelp),
+            value: st.soundEffects,
+            onChanged: (v) {
+              st.soundEffects = v;
+              if (v) s.sfx.play(SfxKind.tap);
+            },
           ),
-          if (s.audio.missingBytes() > 0)
-            ListTile(
-              leading: s.audio.downloadingAll
-                  ? const SizedBox.square(dimension: 24, child: CircularProgressIndicator())
-                  : const Icon(Icons.download),
-              title: Text(s.audio.downloadingAll
-                  ? t.downloadingAll(s.audio.downloading.keys.firstOrNull ?? 0)
-                  : t.downloadAll((s.audio.missingBytes() / 1e6).toStringAsFixed(0))),
-              subtitle: Text(t.downloadAllHelp),
-              trailing: s.audio.downloadingAll ? TextButton(onPressed: s.audio.cancelAll, child: Text(t.stop)) : null,
-              onTap: s.audio.downloadingAll ? null : s.audio.downloadAll,
-            ),
-          if (s.audio.downloadedBytes() > 0)
-            ListTile(
-              leading: const Icon(Icons.delete_outline),
-              title: Text(t.deleteDownloads),
-              onTap: () async {
-                final ok = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    content: Text(t.confirmDelete),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
-                      FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.delete)),
-                    ],
-                  ),
-                );
-                if (ok == true) await s.audio.deleteDownloads();
-              },
-            ),
+          ListTile(
+            leading: const Icon(Icons.notifications_outlined),
+            title: Text(t.notifyTitle),
+            onTap: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => const NotificationsScreen())),
+          ),
           _Section(t.settingsAbout),
           ListTile(leading: const Icon(Icons.lock_outline), title: Text(t.privacy)),
           ListTile(leading: const Icon(Icons.info_outline), title: Text(t.disclaimer)),
@@ -143,7 +186,9 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => showLicensePage(context: context, applicationName: t.appTitle, applicationVersion: appVersion),
           ),
           const SizedBox(height: 24),
-        ]),
+          ]);
+          },
+        ),
       ),
     );
   }

@@ -4,7 +4,9 @@ const path = require('node:path');
 const root = __dirname;
 const types = { '.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json; charset=utf-8','.svg':'image/svg+xml','.ttf':'font/ttf','.mp3':'audio/mpeg' };
 const server = http.createServer((req,res)=>{
-  const pathname = decodeURIComponent(new URL(req.url,'http://localhost').pathname);
+  let pathname;
+  try { pathname = decodeURIComponent(new URL(req.url,'http://localhost').pathname); }
+  catch { res.writeHead(400,{'Content-Type':'text/plain; charset=utf-8'});res.end('Bad request');return; }
   const requested = pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, '');
   const file = path.resolve(root, requested);
   if (!file.startsWith(root + path.sep) && file !== path.join(root,'index.html')) { res.writeHead(403);res.end('Forbidden');return; }
